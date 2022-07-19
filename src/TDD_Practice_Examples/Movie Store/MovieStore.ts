@@ -9,19 +9,28 @@ export class MovieStore {
     this.inventory = [];
   }
 
-  add(movieTitle: string) {
-    this.inventory.push({movie: movieTitle, isInStock: true})
+  addToInventory(movieTitle: string) {
+    this.inventory.push({ title: movieTitle, isInStock: true });
   }
-  rentMovies(movieRentals: string[], daysToRent: number): number {
-    let result = 0;
-    // 1.5 is the daily cost of a movie rental
-    // result = movieRentals.length * 1.5 * daysToRent;
-    this.inventory.forEach(movie => {
-        if (movieRentals.includes(movie.movie) && movie.isInStock === true) {
-            result += 1.5 * daysToRent
-            movie.isInStock = false
-        }
-    })
-    return result;
+
+  rentMovies(movieRentals: string[], daysToRent: number): [number, string] {
+    let totalCost = 0;
+    let unavailableMovies: Array<string> = [];
+    let unavailableMessage = "";
+
+    this.inventory.forEach((movie) => {
+      if (movieRentals.includes(movie.title) && movie.isInStock) {
+        totalCost += 1.5 * daysToRent;
+        movie.isInStock = false;
+      } else if (movieRentals.includes(movie.title) && !movie.isInStock) {
+        unavailableMovies.push(movie.title);
+      }
+    });
+    if (unavailableMovies.length > 0) {
+      unavailableMessage = `These titles are not available: ${unavailableMovies.join(
+        ", "
+      )}`;
+    }
+    return [totalCost, unavailableMessage];
   }
 }
